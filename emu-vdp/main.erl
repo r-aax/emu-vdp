@@ -124,6 +124,11 @@ test() ->
     vec_mem:test(),
     io:format("Testing of vec_mem is done.~n"),
 
+    % Тестирование cam_mem.
+    cam_mem:start(),
+    cam_mem:test(),
+    io:format("Testing of cam_mem is done.~n"),
+
     ok.
 
 %---------------------------------------------------------------------------------------------------
