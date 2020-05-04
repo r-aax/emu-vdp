@@ -1,3 +1,7 @@
 *.beam
 *.dump
 *.idx3-ubyte
+*.hmtl
+*.css
+*.png
+edoc-info

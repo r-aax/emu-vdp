@@ -2,6 +2,7 @@
 
 cd emu-vdp
 
-erl -eval "main:start()"
+# Точка входа main:start.
+erl -eval "main:start(), halt()"
 
 cd ..
