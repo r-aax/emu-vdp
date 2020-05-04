@@ -1,111 +1,243 @@
+%% @doc
+%% Головной модуль.
+
+% Имя модуля.
 -module(main).
 
+% Подключаемые файлы.
+-include("defines.hrl").
+-include("records.hrl").
+
+% Экспорт функций.
 -export([start/0,
          test/0]).
 
--record(token,
-{
-    command_id,
-    generation,
-    iteration,
-    index,
-    entry,
-    data
-}).
+%---------------------------------------------------------------------------------------------------
+% Служебные функции.
+%---------------------------------------------------------------------------------------------------
 
--record(command,
-{
-    id,
-    name,
-    destinations
-}).
+-spec generate_dataflow_graph() -> [vdp:command()].
+%% @doc
+%% Создание графа программы.
+generate_dataflow_graph() ->
+    [
+        #command{id =  1, name =  mul, dsts = [{2, 1}]},
+        #command{id =  2, name =  mul, dsts = [{5, 2}]},
+        #command{id =  3, name =  mul, dsts = [{5, 1}]},
+        #command{id =  4, name =  neg, dsts = [{7, 1}, {8, 1}]},
+        #command{id =  5, name =  sub, dsts = [{6, 1}]},
+        #command{id =  6, name = sqrt, dsts = [{8, 2}, {7, 2}]},
+        #command{id =  7, name =  add, dsts = [{10, 1}]},
+        #command{id =  8, name =  sub, dsts = [{11, 1}]},
+        #command{id =  9, name =  mul, dsts = [{10, 2}, {11, 2}]},
+        #command{id = 10, name =  dvs, dsts = []},
+        #command{id = 11, name =  dvs, dsts = []}
+    ].
 
-emu(imul, [D1, D2]) ->
-    D1 * D2;
-emu(iadd, [D1, D2]) ->
-    D1 + D2;
-emu(isub, [D1, D2]) ->
-    D1 - D2.
+%---------------------------------------------------------------------------------------------------
 
-find_tokens_to_go(Tokens) ->
-    find_tokens_to_go(Tokens, 1).
-find_tokens_to_go([], _) ->
-    undef;
-find_tokens_to_go([_], _) ->
-    undef;
-find_tokens_to_go([#token{command_id = _CommandId, generation = _Generation, iteration = _Iteration, index = _Index, entry = 0},
-                   #token{command_id = _CommandId, generation = _Generation, iteration = _Iteration, index = _Index, entry = 1}
-                   | _], I) ->
-    I;
-find_tokens_to_go([_, T | Tail], I) ->
-    find_tokens_to_go([T | Tail], I + 1).
+-spec generate_initial_tokens() -> [vdp:token()].
+%% @doc
+%% Создание списка начальных токенов.
+generate_initial_tokens() ->
 
-loop([], _) ->
-    io:format("program finish~n");
-loop(Tokens, Commands) ->
-    io:format("Tokens : ~p~n", [Tokens]),
+    % Коэффициенты квадратного уравнения.
+    A = 1.0,
+    B = -3.0,
+    C = 2.0,
 
-    % Find data.
-    PosInTokens = find_tokens_to_go(Tokens),
-    io:format("position in tokens list : ~p~n", [PosInTokens]),
-    T1 = lists:nth(PosInTokens, Tokens),
-    T2 = lists:nth(PosInTokens + 1, Tokens),
-    [Cmd] = lists:filter(fun(X) -> X#command.id == T1#token.command_id end,
-                         Commands),
+    [
+        #token{command_id = 9, state = default, entry = 1, data = {float, 2.0}},
+        #token{command_id = 1, state = default, entry = 1, data = {float, 4.0}},
+        #token{command_id = 9, state = default, entry = 2, data = {float, A}},
+        #token{command_id = 1, state = default, entry = 2, data = {float, A}},
+        #token{command_id = 2, state = default, entry = 2, data = {float, C}},
+        #token{command_id = 4, state = default, entry = 1, data = {float, B}},
+        #token{command_id = 3, state = default, entry = 1, data = {float, B}},
+        #token{command_id = 3, state = default, entry = 2, data = {float, B}}
+    ].
 
-    % Execute.
-    io:format("EXE : cmd = ~p, tokens = ~p, ~p~n", [Cmd, T1, T2]),
-    R = emu(Cmd#command.name, [T1#token.data, T2#token.data]),
-    {Sub1, [_, _ | Sub2]} = lists:split(PosInTokens - 1, Tokens),
+%---------------------------------------------------------------------------------------------------
 
-    % New data.
-    Ress = lists:map
-    (
-        fun(Dst) ->
-            case Dst of
-                undef ->
-                    undef;
-                show ->
-                    io:format("SHOW RESULT : ~p~n", [R]),
-                    undef;
-                {ToCmdId, ToEntry} ->
-                    T1#token{command_id = ToCmdId, entry = ToEntry, data = R}
-            end
-        end,
-        Cmd#command.destinations
-    ),
-    NewTokens = Sub1 ++ Sub2 ++ lists:filter(fun(X) -> X /= undef end, Ress),
-    loop(lists:sort(NewTokens), Commands).
+-spec get_instructions_semantic() -> [{vdp:command_name(), {integer(), fun()}}].
+%% @doc
+%% Получение описание семантики инструкций.
+get_instructions_semantic() ->
+    [
+        {
+            add,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+                    #token{state = St, data = {float, X + Y}}
+                end
+            }
+        },
+        {
+            dvs,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+                    #token{state = St, data = {float, X / Y}}
+                end
+            }
+        },
+        {
+            mul,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+                    #token{state = St, data = {float, X * Y}}
+                end
+            }
+        },
+        {
+            neg,
+            {
+                1,
+                fun([#token{state = St, entry = 1, data = {float, X}}]) ->
+                    #token{state = St, data = {float, -X}}
+                end
+            }
+        },
+        {
+            sqrt,
+            {
+                1,
+                fun([#token{state = St, entry = 1, data = {float, X}}]) ->
+                    #token{state = St, data = {float, math:sqrt(X)}}
+                end
+            }
+        },
+        {
+            sub,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+                    #token{state = St, data = {float, X - Y}}
+                end
+            }
+        }
+    ].
 
+%---------------------------------------------------------------------------------------------------
+% Старт модуля.
+%---------------------------------------------------------------------------------------------------
+
+-spec start() -> ok.
+%% @doc
+%% Старт головного модуля.
 start() ->
-    io:format("Векторный потоковый процессор main:start()~n"),
+    io:format("main:start() : begin~n"),
 
-    % Commands.
-    Commands =
-    [
-        %#command{id = 1, name = imul, destinations = [{3, 0}, {2, 0}]},
-        %#command{id = 2, name = iadd, destinations = [{3, 1}, undef]},
-        %#command{id = 3, name = isub, destinations = [undef, show]}
+    % Получаем граф программы.
+    G = generate_dataflow_graph(),
 
-        #command{id = 1, name = isub, destinations = [{3, 1}, undef]},
-        #command{id = 2, name = isub, destinations = [undef, {3, 0}]},
-        #command{id = 3, name = iadd, destinations = [show, undef]}
-    ],
+    % Получаем список инициализирующих токенов.
+    T = generate_initial_tokens(),
 
-    % Inputs.
-    Tokens =
-    [
-        %#token{command_id = 1, entry = 0, generation = 0, iteration = 0, index = 0, data = 1},
-        %#token{command_id = 1, entry = 1, generation = 0, iteration = 0, index = 0, data = 2},
-        %#token{command_id = 2, entry = 1, generation = 0, iteration = 0, index = 0, data = 3}
+    % Получаем семантику.
+    S = get_instructions_semantic(),
 
-        #token{command_id = 2, entry = 1, generation = 0, iteration = 0, index = 0, data = 10},
-        #token{command_id = 2, entry = 0, generation = 0, iteration = 0, index = 0, data = 20},
-        #token{command_id = 1, entry = 1, generation = 0, iteration = 0, index = 0, data = 30},
-        #token{command_id = 1, entry = 0, generation = 0, iteration = 0, index = 0, data = 40}
-    ],
+    % Запускаем процессы.
+    vec_mem:start(),
+    cam_mem:start(),
+    exe_buf:start(),
 
-    loop(lists:sort(Tokens), lists:sort(Commands)).
+    % Запускаем основной цикл.
+    loop(T, G, S),
+
+    io:format("main:start() : end~n").
+
+%---------------------------------------------------------------------------------------------------
+% Цикл работы с токенами.
+%---------------------------------------------------------------------------------------------------
+
+-spec loop(T, G, S) -> ok
+      when T :: [vdp:token()],
+           G :: [vdp:command()],
+           S :: [{vdp:command_name(), {integer(), fun()}}].
+%% @doc
+%% Цикл для работы с токенами.
+%% В цикле может происходит занесение токенов с ассоциативную память,
+%% либо обработка инструкции из буфера команд.
+%%
+%% @param T Список токенов.
+%% @param G Граф программы.
+%% @param S Семантика комманд.
+%%
+%% @private
+loop([#token{command_id = CId} = TH | TT], G, S) ->
+
+    % Ищем команду в графе.
+    [Cmd] = lists:filter(fun(#command{id = Id}) -> Id =:= CId end, G),
+
+    % Ищем ее семантику.
+    Name = Cmd#command.name,
+    {value, {Name, {Args, _Fun}}} = lists:keysearch(Name, 1, S),
+
+    % Пытаемся поместить токен в cam_mem.
+    case cam_mem:set_token(TH, Args) of
+        ok ->
+            % Токен лег в ассоциативную память.
+            ok;
+        ?OK(Tokens) ->
+            % Нашли комплектт на исполнение, отправляем в буфер.
+            exe_buf:add(Tokens)
+    end,
+
+    % Продолжаем работу.
+    loop(TT, G, S);
+
+loop([], G, S) ->
+
+    % Больше не осталось токенов для добавления.
+    % Берем на исполнение набор токенов из буфера.
+    case exe_buf:take() of
+
+        ok ->
+            % Буфер пустой, завершаем работу.
+            ok;
+
+        ?OK(Tokens) ->
+            % Достали набор токенов для выполнения инструкции.
+
+            % Достаем идентификатор команды.
+            [#token{command_id = CId} | _] = Tokens,
+
+            % Ищем команду в графе.
+            [Cmd] = lists:filter(fun(#command{id = Id}) -> Id =:= CId end, G),
+
+            % Ищем ее семантику.
+            Name = Cmd#command.name,
+            {value, {Name, {_Args, Fun}}} = lists:keysearch(Name, 1, S),
+
+            % Исполняем команду.
+            OutTokenTemplate = Fun(Tokens),
+
+            % Формируем выходные токены.
+            OutTokens =
+                [
+                    OutTokenTemplate#token{command_id = OutCId, entry = Entry} 
+                    ||
+                    {OutCId, Entry} <- Cmd#command.dsts
+                ],
+
+            % Если выходных токенов нет, то печатаем на экран шаблон (это финальные данные).
+            if
+                OutTokens =:= [] ->
+                    io:format("Terminal data : ~p~n", [OutTokenTemplate]);
+                true ->
+                    ok
+            end,
+
+            % Продолжаем работу с новыми токенами.
+            loop(OutTokens, G, S)
+    end.
 
 %---------------------------------------------------------------------------------------------------
 % Тестирование.

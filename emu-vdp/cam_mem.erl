@@ -113,12 +113,12 @@ loop() ->
             IsDuplicate = lists:any(fun(X) -> X =:= Entry end, OldEntries),
 
             if
-                (Entry < 0) orelse (Entry >= Args) ->
+                (Entry =< 0) orelse (Entry > Args) ->
                     From ! {cam_mem, ?ERR("wrong entry number")};
                 IsDuplicate ->
                     From ! {cam_mem, ?ERR("duplicate entry number")};
                 true ->
-                    CanonEntries = lists:seq(0, Args - 1, 1),
+                    CanonEntries = lists:seq(1, Args, 1),
                     if
                         NewEntries =:= CanonEntries ->
                             erase(Key),
@@ -152,40 +152,40 @@ loop() ->
 test() ->
 
     % Тестовые идентификатор команды и состояние.
-    Id = 0,
+    Id = 1,
     St = test_state,
     Dt = test_data,
-    T0 = #token{command_id = Id, state = St, entry = 0, data = Dt},
     T1 = #token{command_id = Id, state = St, entry = 1, data = Dt},
     T2 = #token{command_id = Id, state = St, entry = 2, data = Dt},
+    T3 = #token{command_id = Id, state = St, entry = 3, data = Dt},
 
     % Тест 1.
     % Добавление токенов для команды из трех аргументов.
     ok = del_tokens(),
-    ok = set_token(T0, 3),
     ok = set_token(T1, 3),
-    ?OK([T0, T1, T2]) = set_token(T2, 3),
+    ok = set_token(T2, 3),
+    ?OK([T1, T2, T3]) = set_token(T3, 3),
     ?OK([]) = get_tokens(),
 
     % Тест 2.
     % Добавление токенов для команды в другом порядке.
     ok = del_tokens(),
-    ok = set_token(T2, 3),
-    ok = set_token(T0, 3),
-    ?OK([T0, T1, T2]) = set_token(T1, 3),
+    ok = set_token(T3, 3),
+    ok = set_token(T1, 3),
+    ?OK([T1, T2, T3]) = set_token(T2, 3),
     ?OK([]) = get_tokens(),
 
     % Тест 3.
     % Попытка добавить токен со слишком большим номером входа.
     ok = del_tokens(),
-    ?ERR("wrong entry number") = set_token(T2, 2),
+    ?ERR("wrong entry number") = set_token(T3, 2),
     ok = del_tokens(),
 
     % Тест 4.
     % Дублирование номера входа.
     ok = del_tokens(),
-    ok = set_token(T0, 3),
-    ?ERR("duplicate entry number") = set_token(T0, 3),
+    ok = set_token(T1, 3),
+    ?ERR("duplicate entry number") = set_token(T1, 3),
     ok = del_tokens(),
 
     ok = del_tokens().
