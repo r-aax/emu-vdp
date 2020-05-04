@@ -129,6 +129,11 @@ test() ->
     cam_mem:test(),
     io:format("Testing of cam_mem is done.~n"),
 
+    % Тестирование exe_buf.
+    exe_buf:start(),
+    exe_buf:test(),
+    io:format("Testing of exe_buf is done.~n"),
+
     ok.
 
 %---------------------------------------------------------------------------------------------------

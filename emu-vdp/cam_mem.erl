@@ -8,7 +8,7 @@
 -include("defines.hrl").
 -include("records.hrl").
 
-% Экспортируемые файлы.
+% Экспортируемые функции.
 -export([get_tokens/0, set_token/2, del_tokens/0,
          start/0,
          loop/0,
