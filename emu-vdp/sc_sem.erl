@@ -31,6 +31,6 @@ receive
     From ! {result, ?OK(Res)}
 
 end,
-
+ 
 loop().
 
