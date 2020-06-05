@@ -9,7 +9,7 @@ then
     
 else
     # Точка входа - в реализации конкретного эмулятора. "$1":test().
-    erl -eval $1":test()"
+    erl -eval $1":test(), halt()"
 fi
 
 cd ..
