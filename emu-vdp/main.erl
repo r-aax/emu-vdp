@@ -31,7 +31,7 @@ start(S, G, T) ->
 
     % Запускаем процессы.
     vec_mem:start(),
-    cam_mem:start(),
+    ast_mem:start(),
     exe_buf:start(),
 
     % Запускаем основной цикл.
@@ -66,8 +66,8 @@ loop(S, G, [#token{command_id = CId} = TH | TT]) ->
     Name = Cmd#command.name,
     {value, {Name, {Args, _Fun}}} = lists:keysearch(Name, 1, S),
 
-    % Пытаемся поместить токен в cam_mem.
-    case cam_mem:set_token(TH, Args) of
+    % Пытаемся поместить токен в ast_mem.
+    case ast_mem:set_token(TH, Args) of
         ok ->
             % Токен лег в ассоциативную память.
             ok;
@@ -142,10 +142,10 @@ test() ->
     vec_mem:test(),
     io:format("Testing of vec_mem is done.~n"),
 
-    % Тестирование cam_mem.
-    cam_mem:start(),
-    cam_mem:test(),
-    io:format("Testing of cam_mem is done.~n"),
+    % Тестирование ast_mem.
+    ast_mem:start(),
+    ast_mem:test(),
+    io:format("Testing of ast_mem is done.~n"),
 
     % Тестирование exe_buf.
     exe_buf:start(),

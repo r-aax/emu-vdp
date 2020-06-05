@@ -2,7 +2,7 @@
 %% Ассоциативная память.
 
 % Имя модуля.
--module(cam_mem).
+-module(ast_mem).
 
 % Подключаемые файлы.
 -include("defines.hrl").
@@ -25,8 +25,8 @@
 %% @returns
 %% Список всех токенов.
 get_tokens() ->
-    cam_mem ! {self(), get_tokens},
-    utils:receive_retranslate_ok_and_err(cam_mem).
+    ast_mem ! {self(), get_tokens},
+    utils:receive_retranslate_ok_and_err(ast_mem).
 
 %---------------------------------------------------------------------------------------------------
 
@@ -42,8 +42,8 @@ get_tokens() ->
 %% @return
 %% Пара токенов, сообщение о записи токена, либо сообщение об ошибке.
 set_token(Token, Args) ->
-    cam_mem ! {self(), {set_token, Token, Args}},
-    utils:receive_retranslate_ok_and_err(cam_mem).
+    ast_mem ! {self(), {set_token, Token, Args}},
+    utils:receive_retranslate_ok_and_err(ast_mem).
 
 %---------------------------------------------------------------------------------------------------
 
@@ -54,8 +54,8 @@ set_token(Token, Args) ->
 %% @return
 %% Статус успешного завершения ok.
 del_tokens() ->
-    cam_mem ! {self(), del_tokens},
-    utils:receive_retranslate_ok_and_err(cam_mem).
+    ast_mem ! {self(), del_tokens},
+    utils:receive_retranslate_ok_and_err(ast_mem).
 
 %---------------------------------------------------------------------------------------------------
 % Старт модуля.
@@ -63,13 +63,13 @@ del_tokens() ->
 
 -spec start() -> pid().
 %% @doc
-%% Запуск процесса cam_mem.
+%% Запуск процесса ast_mem.
 %%
 %% @returns
 %% Идентификатор процесса.
 start() ->
     Pid = spawn(?MODULE, loop, []),
-    register(cam_mem, Pid),
+    register(ast_mem, Pid),
     Pid.
 
 %---------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ loop() ->
         % Получение всех токенов.
         {From, get_tokens} ->
             Tokens = get(),
-            From ! {cam_mem, ?OK(Tokens)};
+            From ! {ast_mem, ?OK(Tokens)};
 
         % Занесение токена.
         {From, {set_token, Token, Args}} ->
@@ -114,25 +114,25 @@ loop() ->
 
             if
                 (Entry =< 0) orelse (Entry > Args) ->
-                    From ! {cam_mem, ?ERR("wrong entry number")};
+                    From ! {ast_mem, ?ERR("wrong entry number")};
                 IsDuplicate ->
-                    From ! {cam_mem, ?ERR("duplicate entry number")};
+                    From ! {ast_mem, ?ERR("duplicate entry number")};
                 true ->
                     CanonEntries = lists:seq(1, Args, 1),
                     if
                         NewEntries =:= CanonEntries ->
                             erase(Key),
-                            From ! {cam_mem, ?OK(NewTokens)};
+                            From ! {ast_mem, ?OK(NewTokens)};
                         true ->
                             put(Key, NewTokens),
-                            From ! {cam_mem, ok}
+                            From ! {ast_mem, ok}
                     end
             end;
 
         % Удаление всех токенов.
         {From, del_tokens} ->
             erase(),
-            From ! {cam_mem, ok};
+            From ! {ast_mem, ok};
 
         _ ->
             % Неизвестный тип сигнала просто игнорируется.
