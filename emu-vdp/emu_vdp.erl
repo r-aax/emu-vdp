@@ -3,10 +3,11 @@
 %% Память векторов.
 
 % Имя модуля.
--module(semantic).
+-module(emu_vdp).
 
 % Подключение файлов.
 -include("records.hrl").
+
 
 % Экспортируемые функции
 -export([instructions_semantic/0, start/0]).
@@ -102,19 +103,22 @@ instructions_semantic() ->
 
         % ПДБ - передача с дублированием. На выходе два токена с теми же данными, которые пришли на один вход.
         % Команда необходима для дублирования токенов.
-        {
-            "ПДБ",
-            {
-                1,
-                fun(#token{command_id = CId, state = St, entry = 1, data = {float, X}}) ->
-                    [#token{state = St, data = {float, X}},
-                     #token{state = St, data = {float, X}}]                                  
+       % {
+        
+    %    "ПДБ",
+     
+    %       {
+     %           1,
+      %          fun(#token{command_id = CId, state = St, entry = 1, data = {float, X}}) ->
+       %             [#token{state = St, data = {float, X}},
+        %             #token{state = St, data = {float, X}}]                                  
 
-                end
-                
-            }
+         %       end
             
-        },
+                
+         %   }
+            
+        %},
 
         % Операция сравнения "<". Если условие верное, то на выходе "1", если не верное - "0".
         {
@@ -130,6 +134,18 @@ instructions_semantic() ->
                 end
             }
 
+        },
+
+        % Векторное сложение
+        {
+            vadd,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {int_vec, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {int_vec, Y}}]) ->
+                         #token{state = St,data = {int_vec, X + Y}}
+                end
+            }
         }
 
     ].
