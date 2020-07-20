@@ -9,12 +9,12 @@
 
 % Экспортируемые функции.
 -export([new_vec/2,
-         get_vec/1, get_vecs/0,
-         del_vec/1, del_vecs/0,
-         get_elem/2, set_elem/3,
-         start/0,
-         loop/0,
-         test/0]).
+          get_vec/1, get_vecs/0,
+          del_vec/1, del_vecs/0,
+          get_elem/2, set_elem/3,
+          start/0,
+          loop/0,
+          test/0]).
 
 %---------------------------------------------------------------------------------------------------
 % Интерфейсные функции.

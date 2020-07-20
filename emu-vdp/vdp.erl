@@ -10,12 +10,12 @@
 
 % Экспорт типов данных.
 -export_type([data_type/0,
-              int_elem/0, float_elem/0, addr_elem/0, elem/0,
-              int_vec/0, float_vec/0, addr_vec/0, vec/0,
-              data/0,
-              command_id/0, command_name/0, entry/0, command_dst/0, command/0,
-              token_state/0, token/0,
-              error/0]).
+               int_elem/0, float_elem/0, addr_elem/0, elem/0,
+               int_vec/0, float_vec/0, addr_vec/0, vec/0,
+               data/0,
+               command_id/0, command_name/0, entry/0, command_dst/0, command/0,
+               token_state/0, token/0,
+               error/0]).
 
 % Экспорт функций.
 -export([default_data_elem/1]).
@@ -68,17 +68,17 @@
 %% @type command_id() = integer().
 -type command_id() :: integer().
 
-% Имя команды.
-%% @type command_name() = atom().
--type command_name() :: atom().
+% Имя команды (обычно идентифицируется атомом или строкой).
+%% @type command_name() = term().
+-type command_name() :: term().
 
 % Номер входа команды.
 %% @type entry() = integer().
 -type entry() :: integer().
 
-% Выходящая дуга из команды (назначение).
-%% @type command_dst() = {command_id(), entry_num()}.
--type command_dst() :: {command_id(), entry()}.
+% Выходящая дуга из команды (назначение). Дуга может быть пустой.
+%% @type command_dst() = none | {command_id(), entry_num()}.
+-type command_dst() :: none | {command_id(), entry()}.
 
 % Команда.
 %% @type command() =
@@ -86,7 +86,7 @@
 %%      {
 %%          id = command_id(),
 %%          name = command_name(),
-%%          dsts = [dst()]
+%%          dsts = [command_dst()]
 %%      }.
 -type command() :: #command
         {
