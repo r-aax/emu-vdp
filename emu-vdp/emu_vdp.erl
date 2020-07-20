@@ -3,14 +3,19 @@
 %% Память векторов.
 
 % Имя модуля.
--module(semantic).
+-module(emu_vdp).
 
 % Подключение файлов.
 -include("records.hrl").
 
-% Экспортируемые функции
--export([instructions_semantic/0], [test/0]).
 
+% Экспортируемые функции
+-export([instructions_semantic/0, start/0]).
+
+start() ->
+    Pid = spawn(?MODULE, instructions_semantic, []),
+    register(emu_vdp, Pid),
+    Pid.
 
 % Старт модуля
 instructions_semantic() ->
@@ -53,7 +58,7 @@ instructions_semantic() ->
 
         % МОД - деление по модулю (остаток от деления)
         {
-            rem,
+            "МОД",
             {
                 2,
                 fun([#token{command_id = CId, state = St, entry = 1, data = {int, X}},
@@ -62,7 +67,7 @@ instructions_semantic() ->
                 end
             }
 
-        }
+        },
 
         % Вычитание
         {
@@ -76,54 +81,71 @@ instructions_semantic() ->
             }
         },
 
-        % ПУ - передача по условию
+        % ПУ - передача по условию. Если на правый вход поступает "0", то на правом выходе то, что поступило на левый вход
+        % иначе на левом выходе то, что поступило на левый вход.
         {
-            pu,
+            "ПУ",
             {
                 2,
                 fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
                      #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
                     case Y of
                         0 ->
-                            [#token{state = St, data = {float, []}, 
+                            [#token{state = St, data = {float, []}}, 
                              #token{state = St, data = {float, X}}];
                         _ ->
-                            [#token{state = St, data = {float, X}, 
+                            [#token{state = St, data = {float, X}}, 
                              #token{state = St, data = {float, []}}]
                     end                       
                 end
             }
         },
 
-        % ПДБ - передача с дублированием
-        {
-            pdb,
-            {
-                1,
-                fun(#token{command_id = CId, state = St, entry = 1, data = {float, X}}) ->
-                    [#token{state = St, data = {float, X}},
-                     #token{state = St, data = {float, X}}]                                  
+        % ПДБ - передача с дублированием. На выходе два токена с теми же данными, которые пришли на один вход.
+        % Команда необходима для дублирования токенов.
+       % {
+        
+    %    "ПДБ",
+     
+    %       {
+     %           1,
+      %          fun(#token{command_id = CId, state = St, entry = 1, data = {float, X}}) ->
+       %             [#token{state = St, data = {float, X}},
+        %             #token{state = St, data = {float, X}}]                                  
 
-                end
-                
-            }
+         %       end
             
-        },
+                
+         %   }
+            
+        %},
 
-        % Операция сравнения "<"
+        % Операция сравнения "<". Если условие верное, то на выходе "1", если не верное - "0".
         {
-            min,
+            "<",
             {
                 2,
                 fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
                      #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
-                    case X < Y of ->
+                    case X < Y of
                         false -> #token{state = St, data = 0};
                         true -> #token{state = St, data = 1}
                     end                    
                 end
             }
 
+        },
+
+        % Векторное сложение
+        {
+            vadd,
+            {
+                2,
+                fun([#token{command_id = CId, state = St, entry = 1, data = {int_vec, X}},
+                     #token{command_id = CId, state = St, entry = 2, data = {int_vec, Y}}]) ->
+                         #token{state = St,data = {int_vec, X + Y}}
+                end
+            }
         }
 
     ].
