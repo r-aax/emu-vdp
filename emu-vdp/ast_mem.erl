@@ -10,15 +10,15 @@
 
 % Экспортируемые функции.
 -export([get_tokens/0, set_token/2, del_tokens/0,
-          start/0,
-          loop/0,
-          test/0]).
+         start/0,
+         loop/0,
+         test/0]).
 
 %---------------------------------------------------------------------------------------------------
 % Интерфейсные функции.
 %---------------------------------------------------------------------------------------------------
 
--spec get_tokens() -> {ok, [vdp:token()]}.
+-spec get_tokens() -> {ok, vdp:tokens()}.
 %% @doc
 %% Выдача списка всех токенов.
 %%
@@ -30,7 +30,7 @@ get_tokens() ->
 
 %---------------------------------------------------------------------------------------------------
 
--spec set_token(Token, Args) -> ok | {ok, [vdp:token()]} | vdp:error()
+-spec set_token(Token, Args) -> ok | {ok, vdp:tokens()} | vdp:error()
       when Token :: vdp:token(),
            Args :: integer().
 %% @doc

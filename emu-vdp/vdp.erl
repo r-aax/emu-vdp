@@ -10,12 +10,15 @@
 
 % Экспорт типов данных.
 -export_type([data_type/0,
-               int_elem/0, float_elem/0, addr_elem/0, elem/0,
-               int_vec/0, float_vec/0, addr_vec/0, vec/0,
-               data/0,
-               command_id/0, command_name/0, entry/0, command_dst/0, command/0,
-               token_state/0, token/0,
-               error/0]).
+              int_elem/0, float_elem/0, addr_elem/0, elem/0,
+              int_vec/0, float_vec/0, addr_vec/0, vec/0,
+              data/0,
+              command_id/0, command_name/0, entry/0, command_dst/0,
+              command/0, commands/0,
+              command_semantic/0, commands_semantics/0,
+              token_state/0,
+              token/0, tokens/0,
+              error/0]).
 
 % Экспорт функций.
 -export([default_data_elem/1]).
@@ -64,7 +67,7 @@
 %% @type data() = elem() | vec().
 -type data() :: elem() | vec().
 
-% Идентификатор команды.
+% Идентификатор команды (номер узла в графе программы).
 %% @type command_id() = integer().
 -type command_id() :: integer().
 
@@ -88,12 +91,37 @@
 %%          name = command_name(),
 %%          dsts = [command_dst()]
 %%      }.
--type command() :: #command
+-type command() ::
+        #command
         {
             id :: command_id(),
             name :: command_name(),
             dsts :: [command_dst()]
         }.
+
+% Команды.
+%% @type commands() = [command()].
+-type commands() :: [command()].
+
+% Семантика комманды.
+%% @type command_semantic() =
+%%      #command_semantic
+%%      {
+%%          name = command_name(),
+%%          arity = integer(),
+%%          function = fun()
+%%      }.
+-type command_semantic() ::
+        #command_semantic
+        {
+            name :: command_name(),
+            arity :: integer(),
+            function :: fun()
+        }.
+
+% Семаника команд.
+%% @type commands_semantics() = [command_semantic()].
+-type commands_semantics() :: [command_semantic()].
 
 % Состояние токена.
 % Не определяем конкретный вид состояния,
@@ -110,13 +138,18 @@
 %%          entry = entry(),
 %%          data = data()
 %%      }.
--type token() :: #token
+-type token() ::
+        #token
         {
             command_id :: command_id(),
             state :: token_state(),
             entry :: entry(),
             data :: data()
         }.
+
+% Токены.
+%% @type tokens() = [token()].
+-type tokens() :: [token()].
 
 % Ошибка.
 %% @type error() = err | {err, string()}.

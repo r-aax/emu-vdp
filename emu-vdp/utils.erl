@@ -9,7 +9,7 @@
 
 % Экспортируемые функции.
 -export([first_free_nonnegative/1,
-          receive_retranslate_ok_and_err/1]).
+         receive_retranslate_ok_and_err/1]).
 
 %---------------------------------------------------------------------------------------------------
 % Функции.

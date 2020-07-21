@@ -9,6 +9,14 @@
     dsts :: [vdp:command_dst()]
 }).
 
+% Семантика команды.
+-record(command_semantic,
+{
+    name :: vdp:command_name(),
+    arity :: integer(),
+    function :: fun()
+}).
+
 % Токен.
 -record(token,
 {
