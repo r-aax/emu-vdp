@@ -18,6 +18,9 @@
 -spec get_instructions_semantic() -> [{vdp:command_name(), {integer(), fun()}}].
 %% @doc
 %% Получение описание семантики инструкций.
+%%
+%% @returns
+%% Описание семантики команд.
 get_instructions_semantic() ->
     [
         #command_semantic
@@ -90,6 +93,9 @@ get_instructions_semantic() ->
 -spec generate_dataflow_graph() -> [vdp:command()].
 %% @doc
 %% Создание графа программы.
+%%
+%% @returns
+%% Граф программы.
 generate_dataflow_graph() ->
     [
         #command{id =  1, name =  mul, dsts = [{2, 1}]},
@@ -110,6 +116,9 @@ generate_dataflow_graph() ->
 -spec generate_initial_tokens() -> [vdp:token()].
 %% @doc
 %% Создание списка начальных токенов.
+%%
+%% @returns
+%% Список входных токенов.
 generate_initial_tokens() ->
 
     % Коэффициенты квадратного уравнения.
@@ -135,6 +144,9 @@ generate_initial_tokens() ->
 -spec test() -> ok.
 %% @doc
 %% Тестирование модуля.
+%%
+%% @returns
+%% Код успешного завершения.
 test() ->
 
     % Семантика команд конкретного эмулятора.

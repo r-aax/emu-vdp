@@ -39,7 +39,7 @@ get_tokens() ->
 %% @param Token Токен.
 %% @param Args Количество аргументов команды.
 %%
-%% @return
+%% @returns
 %% Пара токенов, сообщение о записи токена, либо сообщение об ошибке.
 set_token(Token, Args) ->
     ast_mem ! {self(), {set_token, Token, Args}},
@@ -51,7 +51,7 @@ set_token(Token, Args) ->
 %% @doc
 %% Удаление всех токенов.
 %%
-%% @return
+%% @returns
 %% Статус успешного завершения ok.
 del_tokens() ->
     ast_mem ! {self(), del_tokens},
@@ -149,6 +149,9 @@ loop() ->
 -spec test() -> ok.
 %% @doc
 %% Тестирование модуля.
+%%
+%% @returns
+%% Код успешного завершения.
 test() ->
 
     % Тестовые идентификатор команды и состояние.

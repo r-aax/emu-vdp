@@ -25,7 +25,7 @@
 %%
 %% @param Tokens Набор токенов.
 %%
-%% @return
+%% @returns
 %% Код успешного завершения ok.
 add(Tokens) ->
     exe_buf ! {self(), {add, Tokens}},
@@ -37,7 +37,7 @@ add(Tokens) ->
 %% @doc
 %% Получение набора токенов для выполнения команды.
 %%
-%% @return
+%% @returns
 %% Набор токенов или просто ok, если буфер пуст.
 take() ->
     exe_buf ! {self(), take},
@@ -104,6 +104,9 @@ loop(L) ->
 -spec test() -> ok.
 %% @doc
 %% Тестирование модуля.
+%%
+%% @returns
+%% Код успешного завершения.
 test() ->
     ok = add(a),
     ok = add(b),

@@ -83,7 +83,7 @@ del_vec(Addr) ->
 %% @doc
 %% Удаление всех векторов.
 %%
-%% @return
+%% @returns
 %% Код успешного завершения ok.
 del_vecs() ->
     vec_mem ! {self(), del_vecs},
@@ -119,7 +119,7 @@ get_elem(Addr, I) ->
 %% @param I Номер элемента.
 %% @param V Новый элемент.
 %%
-%% @return
+%% @returns
 %% Код успешного завершения ok или сообщение об ошибке.
 set_elem(Addr, I, V) ->
     vec_mem ! {self(), {set_elem, Addr, I, V}},
@@ -256,7 +256,7 @@ loop() ->
 %% @doc
 %% Тестирование модуля.
 %%
-%% @return
+%% @returns
 %% Код успешного завершения ok.
 test() ->
 

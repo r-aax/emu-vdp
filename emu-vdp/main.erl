@@ -27,6 +27,9 @@
 %%
 %% @param G Граф программы.
 %% @param Id Идентификатор команды.
+%%
+%% @returns
+%% Команда.
 find_command_by_id(G, Id) ->
     case lists:filter(fun(#command{id = LocId}) -> LocId =:= Id end, G) of
         [Cmd] ->
@@ -48,6 +51,9 @@ find_command_by_id(G, Id) ->
 %%
 %% @param S Список семантик команд.
 %% @param С Команда.
+%%
+%% @returns
+%% Семантика команды.
 find_command_semantic(S, C) ->
     case lists:filter(fun(#command_semantic{name = Name}) -> Name =:= C#command.name end,
                       S) of
@@ -71,6 +77,9 @@ find_command_semantic(S, C) ->
 %% @param S Семантика комманд.
 %% @param G Граф программы.
 %% @param T Список токенов.
+%%
+%% @returns
+%% Код успешного завершения.
 start(S, G, T) ->
     io:format("main:start() : begin~n"),
 
@@ -94,6 +103,7 @@ start(S, G, T) ->
            T :: vdp:tokens().
 %% @doc
 %% Цикл для работы с токенами.
+%%
 %% В цикле может происходит занесение токенов с ассоциативную память,
 %% либо обработка инструкции из буфера команд.
 %%

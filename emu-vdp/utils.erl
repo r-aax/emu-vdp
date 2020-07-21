@@ -61,7 +61,8 @@ first_free_nonnegative([H | T], N) ->
 %%
 %% @param From Процесс.
 %%
-%% @returns Ретранслированное значение.
+%% @returns
+%% Ретранслированное значение.
 receive_retranslate_ok_and_err(From) ->
     receive
         {From, ?OK(V)} ->
