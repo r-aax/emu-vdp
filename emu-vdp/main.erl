@@ -36,6 +36,28 @@ find_command_by_id(G, Id) ->
     end.
 
 %---------------------------------------------------------------------------------------------------
+
+-spec find_command_semantic(S, C) -> vdp:command_semantic()
+      when S :: vdp:commands_semantics(),
+           C :: vdp:command().
+%% @doc
+%% Поиск семантики команды.
+%%
+%% Семантика команды обязательно должна быть описана, причем ровно один раз.
+%% Если это нет так, то генерируется исключение.
+%%
+%% @param S Список семантик команд.
+%% @param С Команда.
+find_command_semantic(S, C) ->
+    case lists:filter(fun(#command_semantic{name = Name}) -> Name =:= C#command.name end,
+                      S) of
+        [Sem] ->
+            Sem;
+        _ ->
+            throw("can not find command semantic in semantics list")
+    end.
+
+%---------------------------------------------------------------------------------------------------
 % Старт модуля.
 %---------------------------------------------------------------------------------------------------
 
@@ -82,15 +104,12 @@ start(S, G, T) ->
 %% @private
 loop(S, G, [#token{command_id = Id} = TH | TT]) ->
 
-    % Ищем команду в графе.
+    % Ищем команду в графе и ее семантику.
     Cmd = find_command_by_id(G, Id),
-
-    % Ищем ее семантику.
-    Name = Cmd#command.name,
-    {value, {Name, {Args, _Fun}}} = lists:keysearch(Name, 1, S),
+    Sem = find_command_semantic(S, Cmd),
 
     % Пытаемся поместить токен в ast_mem.
-    case ast_mem:set_token(TH, Args) of
+    case ast_mem:set_token(TH, Sem#command_semantic.arity) of
         ok ->
             % Токен лег в ассоциативную память.
             ok;
@@ -118,14 +137,12 @@ loop(S, G, []) ->
             % Достаем идентификатор команды.
             [#token{command_id = Id} | _] = Tokens,
 
-            % Ищем команду в графе.
+            % Ищем команду в графе и ее семантику.
             Cmd = find_command_by_id(G, Id),
-
-            % Ищем ее семантику.
-            Name = Cmd#command.name,
-            {value, {Name, {_Args, Fun}}} = lists:keysearch(Name, 1, S),
+            Sem = find_command_semantic(S, Cmd),
 
             % Исполняем команду.
+            Fun = Sem#command_semantic.function,
             OutTokenTemplate = Fun(Tokens),
 
             % Формируем выходные токены.

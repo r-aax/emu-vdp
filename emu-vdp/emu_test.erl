@@ -20,63 +20,68 @@
 %% Получение описание семантики инструкций.
 get_instructions_semantic() ->
     [
+        #command_semantic
         {
-            add,
-            {
-                2,
-                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
-                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+            name = add,
+            arity = 2,
+            function =
+                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
                     #token{state = St, data = {float, X + Y}}
                 end
-            }
         },
+
+        #command_semantic
         {
-            dvs,
-            {
-                2,
-                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
-                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+            name = dvs,
+            arity = 2,
+            function =
+                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
                     #token{state = St, data = {float, X / Y}}
                 end
-            }
         },
+
+        #command_semantic
         {
-            mul,
-            {
-                2,
-                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
-                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+            name = mul,
+            arity = 2,
+            function =
+                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
                     #token{state = St, data = {float, X * Y}}
                 end
-            }
         },
+
+        #command_semantic
         {
-            neg,
-            {
-                1,
+            name = neg,
+            arity = 1,
+            function =
                 fun([#token{state = St, entry = 1, data = {float, X}}]) ->
                     #token{state = St, data = {float, -X}}
                 end
-            }
         },
+
+        #command_semantic
         {
-            sqrt,
-            {
-                1,
+            name = sqrt,
+            arity = 1,
+            function =
                 fun([#token{state = St, entry = 1, data = {float, X}}]) ->
                     #token{state = St, data = {float, math:sqrt(X)}}
                 end
-            }
         },
+
+        #command_semantic
         {
-            sub,
-            {
-                2,
-                fun([#token{command_id = CId, state = St, entry = 1, data = {float, X}},
-                     #token{command_id = CId, state = St, entry = 2, data = {float, Y}}]) ->
+            name = sub,
+            arity = 2,
+            function =
+                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
+                     #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
                     #token{state = St, data = {float, X - Y}}
                 end
-            }
         }
     ].
 
