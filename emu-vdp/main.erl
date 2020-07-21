@@ -128,8 +128,14 @@ form_out_tokens(R, Dsts) ->
 
     % Обрабатываем результат для каждого выхода отдельно,
     % а затем сливаем все выходные токены в единый список.
-    Out = lists:map(fun({LocR, LocDst}) -> form_single_dst_out_tokens(LocR, LocDst) end,
-                    lists:zip(Rs, Dsts)),
+    Out =
+        lists:map
+        (
+            fun({LocR, LocDst}) ->
+                form_single_dst_out_tokens(LocR, LocDst)
+            end,
+            lists:zip(Rs, Dsts)
+        ),
     lists:flatten(Out).
 
 %---------------------------------------------------------------------------------------------------
