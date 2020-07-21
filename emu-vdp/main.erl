@@ -13,6 +13,29 @@
          test/0]).
 
 %---------------------------------------------------------------------------------------------------
+% Вспомогательные функции.
+%---------------------------------------------------------------------------------------------------
+
+-spec find_command_by_id(G, Id) -> vdp:command()
+      when G :: vdp:commands(),
+           Id :: vdp:command_id().
+%% @doc
+%% Поиск команды в графе программы.
+%%
+%% Подразумевается, что в графе есть только одна команда с данным идентификатором.
+%% Если оказывается иное, то генерируется исключение.
+%%
+%% @param G Граф программы.
+%% @param Id Идентификатор команды.
+find_command_by_id(G, Id) ->
+    case lists:filter(fun(#command{id = LocId}) -> LocId =:= Id end, G) of
+        [Cmd] ->
+            Cmd;
+        _ ->
+            throw("can not find command in program graph")
+    end.
+
+%---------------------------------------------------------------------------------------------------
 % Старт модуля.
 %---------------------------------------------------------------------------------------------------
 
@@ -57,10 +80,10 @@ start(S, G, T) ->
 %% @param T Список токенов.
 %%
 %% @private
-loop(S, G, [#token{command_id = CId} = TH | TT]) ->
+loop(S, G, [#token{command_id = Id} = TH | TT]) ->
 
     % Ищем команду в графе.
-    [Cmd] = lists:filter(fun(#command{id = Id}) -> Id =:= CId end, G),
+    Cmd = find_command_by_id(G, Id),
 
     % Ищем ее семантику.
     Name = Cmd#command.name,
@@ -93,10 +116,10 @@ loop(S, G, []) ->
             % Достали набор токенов для выполнения инструкции.
 
             % Достаем идентификатор команды.
-            [#token{command_id = CId} | _] = Tokens,
+            [#token{command_id = Id} | _] = Tokens,
 
             % Ищем команду в графе.
-            [Cmd] = lists:filter(fun(#command{id = Id}) -> Id =:= CId end, G),
+            Cmd = find_command_by_id(G, Id),
 
             % Ищем ее семантику.
             Name = Cmd#command.name,
