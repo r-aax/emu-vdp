@@ -107,8 +107,8 @@ generate_dataflow_graph() ->
         #command{id =  7, name =  add, dsts = [{10, 1}]},
         #command{id =  8, name =  sub, dsts = [{11, 1}]},
         #command{id =  9, name =  mul, dsts = [{10, 2}, {11, 2}]},
-        #command{id = 10, name =  dvs, dsts = []},
-        #command{id = 11, name =  dvs, dsts = []}
+        #command{id = 10, name =  dvs, dsts = [out]},
+        #command{id = 11, name =  dvs, dsts = [out]}
     ].
 
 %---------------------------------------------------------------------------------------------------

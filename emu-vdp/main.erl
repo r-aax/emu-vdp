@@ -64,6 +64,75 @@ find_command_semantic(S, C) ->
     end.
 
 %---------------------------------------------------------------------------------------------------
+
+-spec form_single_dst_out_tokens(R, Dst) -> vdp:tokens()
+      when R :: vdp:token() | vdp:tokens(),
+           Dst :: vdp:command_dst().
+%% @doc
+%% Генерация списка токенов для одного выхода.
+%%
+%% @param R Результат для одного выхода.
+%% @param Dst Описание выхода.
+%%
+%% @returns
+%% Список токенов для одного выхода.
+form_single_dst_out_tokens(_, none) ->
+    % Висячий выход, ничего не делаем.
+    [];
+form_single_dst_out_tokens(R, out) ->
+    % Токен для вывода на экран.
+    io:format("Out : ~p~n", [R]),
+    [];
+form_single_dst_out_tokens(R, {Id, Entry}) ->
+    Rs =
+        if
+            is_list(R) ->
+                R;
+            true ->
+                [R]
+        end,
+    [LocR#token{command_id = Id, entry = Entry} || LocR <- Rs].
+
+%---------------------------------------------------------------------------------------------------
+
+-spec form_out_tokens(R, Dsts) -> vdp:tokens()
+      when R :: term(),
+           Dsts :: [vdp:command_dst()].
+%% @doc
+%% Генерация выходных токенов по результату команды.
+%%
+%% Результат команды может принимать разные представления.
+%% Если это просто один токен, то он должен быть раздублирован на все выходы команды.
+%% Если это список токенов, то его длина должна соответствовать количеству выходов команды.
+%%
+%% @param R Результат выполнения команды.
+%% @param Dsts Описание выходов команды.
+%%
+%% @returns
+%% Список выходных токенов.
+form_out_tokens(R, Dsts) ->
+    L = length(Dsts),
+
+    % Обрабатываем результаты команды.
+    % Поддерживаем скалярные результаты - оборачиваем в список по числу выходов.
+    % Проверяем попутно, что размерности количества результатов и количества выходов равны.
+    Rs =
+        if
+            not is_list(R) ->
+                lists:duplicate(L, R);
+            L /= length(R) ->
+                throw("wrong number of command results");
+            true ->
+                R
+        end,
+
+    % Обрабатываем результат для каждого выхода отдельно,
+    % а затем сливаем все выходные токены в единый список.
+    Out = lists:map(fun({LocR, LocDst}) -> form_single_dst_out_tokens(LocR, LocDst) end,
+                    lists:zip(Rs, Dsts)),
+    lists:flatten(Out).
+
+%---------------------------------------------------------------------------------------------------
 % Старт модуля.
 %---------------------------------------------------------------------------------------------------
 
@@ -151,25 +220,10 @@ loop(S, G, []) ->
             Cmd = find_command_by_id(G, Id),
             Sem = find_command_semantic(S, Cmd),
 
-            % Исполняем команду.
+            % Исполняем команду, а затем по ней формируем списов выходных токенов.
             Fun = Sem#command_semantic.function,
-            OutTokenTemplate = Fun(Tokens),
-
-            % Формируем выходные токены.
-            OutTokens =
-                [
-                    OutTokenTemplate#token{command_id = OutCId, entry = Entry} 
-                    ||
-                    {OutCId, Entry} <- Cmd#command.dsts
-                ],
-
-            % Если выходных токенов нет, то печатаем на экран шаблон (это финальные данные).
-            if
-                OutTokens =:= [] ->
-                    io:format("Terminal data : ~p~n", [OutTokenTemplate]);
-                true ->
-                    ok
-            end,
+            R = Fun(Tokens),
+            OutTokens = form_out_tokens(R, Cmd#command.dsts),
 
             % Продолжаем работу с новыми токенами.
             loop(S, G, OutTokens)
