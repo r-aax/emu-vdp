@@ -10,7 +10,8 @@
 
 % Экспорт функций.
 -export([start/3,
-         test/0]).
+         test/0,
+         run/3]).
 
 %---------------------------------------------------------------------------------------------------
 % Вспомогательные функции.
@@ -263,5 +264,38 @@ test() ->
     io:format("Testing of exe_buf is done.~n"),
 
     ok.
+
+%---------------------------------------------------------------------------------------------------
+% Запуск.
+%---------------------------------------------------------------------------------------------------
+
+-spec run(SemanticName, GraphName, TokensName) -> ok
+      when SemanticName :: string(),
+           GraphName :: string(),
+           TokensName :: string().
+%% @doc
+%% Запуск эмулятора.
+%%
+%% @return
+%% Код успешного завершения ok.
+run(SemanticName, GraphName, TokensName) ->
+
+    % Атомы семантики, графа ии токенов.
+    SemanticAtom = list_to_atom("semantic_" ++ SemanticName),
+    GraphAtom = list_to_atom("graph_" ++ GraphName),
+    TokensAtom = list_to_atom("tokens_" ++ TokensName),
+
+    % Собираем нужные модули с семантикой, графом и токенами.
+    c:cd("semantic"),
+    c:c(SemanticAtom, [{i, ".."}]),
+    c:cd("../graph"),
+    c:c(GraphAtom, [{i, ".."}]),
+    c:cd("../tokens"),
+    c:c(TokensAtom, [{i, ".."}]),
+    c:cd(".."),
+
+    start(SemanticAtom:get_semantic_test(),
+          GraphAtom:get_graph_test(),
+          TokensAtom:get_tokens_test()).
 
 %---------------------------------------------------------------------------------------------------
