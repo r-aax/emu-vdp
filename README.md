@@ -35,8 +35,8 @@
 | НРЦ          | Не равно целочисленное   |  int               | int x2              |
 | МРЦ          | Меньше или равно целочисленное|  {int, int)   | int x2              |
 | БЛ           | Больше                   |  {float, float}    | float x2            |
-| БР           | Больше или равно         |  {Float, float}    | float x2            |
-| РВ           | Равно                    |  {Float, float}    | float x2            |
+| БР           | Больше или равно         |  {float, float}    | float x2            |
+| РВ           | Равно                    |  {float, float}    | float x2            |
 | НР           | Не равно                 |  {float, float}    | float x2            |
 | МР           | Меньше или равно         |  {float, float}    | float x2            |
 | МН           | Меньше                   |  {float, float}    | float x2            |
