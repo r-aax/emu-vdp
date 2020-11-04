@@ -10,7 +10,7 @@
 
 get_graph_int_a() ->
     [
-        #command{id = 1, name = iadd, dsts = [2, 1]},
+        #command{id = 1, name = iadd, dsts = [{2, 1}]},
         #command{id = 2, name = isub, dsts = [out]}
         
         
