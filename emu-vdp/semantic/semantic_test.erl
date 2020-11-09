@@ -134,8 +134,8 @@ get_semantic_test() ->
             name = mod,
             arity = 2,
             function =
-                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
-                     #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
+                fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
+                     #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
                     #token{state = St, data = {int, X rem Y}}
                 end
         }
