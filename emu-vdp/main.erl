@@ -295,7 +295,7 @@ run(SemanticName, GraphName, TokensName) ->
     c:cd(".."),
 
     start(SemanticAtom:get_semantic_test(),
-          GraphAtom:get_graph_int_a(),
-          TokensAtom:get_tokens_int_a()).
+          GraphAtom:get_graph_testpu(),
+          TokensAtom:get_tokens_testpu()).
 
 %---------------------------------------------------------------------------------------------------

@@ -148,8 +148,8 @@ get_semantic_test() ->
         {
             name = rnd,
             arity = 1,
-            function =
-                fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}} ->
+           function =
+                fun([#token{state = St, entry = 1, data = {float, X}}]) ->
                     #token{state = St, data = {int, round (X)}}
                 end
         },
@@ -159,8 +159,9 @@ get_semantic_test() ->
             name = int_to_float,
             arity = 1,
             function =
-                fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}}]) ->
-                    #token(state = St, data = {float, float (X)}}            
+                fun([#token{state = St, entry = 1, data = {int, X}}]) ->
+                    #token{state = St, data = {float, float (X)}}
+                end            
         },
 
         %Арифметический сдвиг влево
@@ -220,7 +221,7 @@ get_semantic_test() ->
             name = lnot,
             arity = 1,
             function =
-                fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}}]) ->
+                fun([#token{state = St, entry = 1, data = {int, X}}]) ->
                     #token{state = St, data = {int, not X}}
                 end
         },
@@ -379,11 +380,13 @@ get_semantic_test() ->
             name = trandubl,
             arity = 1,
             function =
-                fun([#token{command_id = Id, state = St, entry = 1, data = {int|float|add, X}}]) ->
-                    {#token{state = St, data = {int|float|add, X}}, 
-                    #token{state = St, data = {int|float|add, X}}}
+                fun([#token{state = St, entry = 1, data = {int, X}}]) ->
+                    {#token{state = St, data = {int, X}}, 
+                    #token{state = St, data = {int, X}}}
                 end
         }
+
+
 
 
 
