@@ -177,7 +177,7 @@ get_semantic_test() ->
                 end
         },
 
-        %Логический сдвиг вправо
+        %Арифметический сдвиг вправо
         #command_semantic
         {
             name = arshftr,
@@ -236,7 +236,11 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X > Y}}
+                         case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
+                    
                 end
         },
 
@@ -248,7 +252,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X >= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -260,7 +267,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X =:= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -272,7 +282,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X =/= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -284,7 +297,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X =< Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -296,7 +312,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {int, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {int, Y}}]) ->
-                    #token{state = St, data = {int, X < Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -308,7 +327,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X > Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -320,19 +342,25 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X >= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
         %Равно
         #command_semantic
         {
-            name = moreql,
+            name = eql,
             arity = 2,
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X =:= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -344,7 +372,10 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X =/= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -356,19 +387,25 @@ get_semantic_test() ->
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X =< Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
         %Меньше
         #command_semantic
         {
-            name = moreql,
+            name = les,
             arity = 2,
             function =
                 fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
                      #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
-                    #token{state = St, data = {float, X >= Y}}
+                        case X > Y of
+                             true -> #token{state = St, data = {int, 1}};
+                             false -> #token{state = St, data = {int, 0}}
+                        end
                 end
         },
 
@@ -381,16 +418,26 @@ get_semantic_test() ->
             arity = 1,
             function =
                 fun([#token{state = St, entry = 1, data = {int, X}}]) ->
-                    {#token{state = St, data = {int, X}}, 
-                    #token{state = St, data = {int, X}}}
+                    #token{state = St, data = {int, X}} 
+                   
                 end
         }
 
+        %Передача по условию
+        %#command_semantic
+        %{
+        %    namename = trancnd,
+        %    arity = 2,
+        %    function =
+         %       fun([#token{command_id = Id, state = St, entry = 1, data = {float, X}},
+        %             #token{command_id = Id, state = St, entry = 2, data = {float, Y}}]) ->
+        %                 case Y of
+        %                    0 -> #token{state = St, data = {int, X}};
+        %                    _ -> #token{state = St, data = {int Y}}
+        %                end
+        %        end    
 
-
-
-
-
+        %}
         
     ].
 
